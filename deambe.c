@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     mbe_parms cur_mp;
     mbe_parms prev_mp;
     mbe_parms prev_mp_enhanced;
-    int uvquality = 64;
+    int uvquality = 3;
     
     int ret, i;
     const int *w, *x;
