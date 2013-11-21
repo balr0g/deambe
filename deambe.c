@@ -8,6 +8,8 @@
 #include "readambefile.h"
 #include "dstar_const.h"
 
+#define DEBUG
+
 
 SNDFILE* openWavOutFile(char *wav_out_file)
 {
@@ -60,12 +62,15 @@ int main(int argc, char **argv)
     SNDFILE *outfile;
     int stop = 0;
     
+    unsigned int majseq, minseq;
+    
     char dvtool_header[15];
     char ambe_fr[4][24];
     float audio_out_temp_buf[160];
     int errs, errs2;
     char err_str[64];
     char ambe_d[49];
+    char ambe_d_str[50];
 
     // mbe state vars
     mbe_parms cur_mp;
@@ -123,7 +128,7 @@ int main(int argc, char **argv)
         w = dW;
         x = dX;
 
-        ret=readambefile(infile,ambebuffer);
+        ret=readambefile(infile,ambebuffer, &majseq, &minseq);
 		
 		if (ret == 9) {
 			// valid frame
@@ -136,9 +141,19 @@ int main(int argc, char **argv)
     		    }
             // feed into decoder
             mbe_processAmbe3600x2250Framef (audio_out_temp_buf, &errs, &errs2, err_str, ambe_fr, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
-            printf("E1: %d; E2: %d\n", errs, errs2);
-            writeSynthesizedVoice(outfile, audio_out_temp_buf);
+            // convert to binary string array
+            for(i=0; i<49; i++) {
+                ambe_d_str[i] = ambe_d[i] + '0';
+            }
+            ambe_d_str[49] = '\0';
+#ifdef DEBUG
+            // print binary string
+            printf("%d\t%d\t%s\t", majseq, minseq, ambe_d_str);
+            // print error data
+            printf("E1: %d; E2: %d; S: %s\n", errs, errs2, err_str);
+#endif
             // output into wav file
+            writeSynthesizedVoice(outfile, audio_out_temp_buf);
 		} else {
 			// no frames left to read in AMBE-file
 			stop=1;

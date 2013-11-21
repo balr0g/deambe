@@ -2,10 +2,11 @@
 // Function readambefile ///////////
 ////////////////////////////////////
 
-int readambefile (FILE * fp, unsigned char * ambebuffer) {
+int readambefile (FILE * fp, unsigned char * ambebuffer, unsigned int *majseq, unsigned int *minseq) {
 
 char linein[80];
 char retbuffer[9];
+char tmpbuffer[6];
 
 char * word3;
 
@@ -32,7 +33,15 @@ while (stop == 0) {
 	}; // end if
 
 	// OK, we have a line, parse it
-
+	// get maj seq id
+	memcpy(tmpbuffer, linein, 5);
+	tmpbuffer[5] = '\0';
+	*majseq = (unsigned int)strtol(tmpbuffer, NULL, 10);
+	// get min seq id
+	memcpy(tmpbuffer, linein+6, 2);
+	tmpbuffer[2] = '\0';
+	*minseq = (unsigned int)strtol(tmpbuffer, NULL, 10);
+	
 	// ambe-data in in 3th word
 	// find first space
 	word3=index(linein,' ');
