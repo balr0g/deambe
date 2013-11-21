@@ -11,7 +11,7 @@ deambe.o: deambe.c dstar_const.h readambefile.h
 
 
 deambe: $(OBJS)
-	$(CC) $(CFLAGS) -o deambe $(OBJS) $(LIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) $(LDFLAGS) -o deambe
 
 clean:
 	rm -f *.o
