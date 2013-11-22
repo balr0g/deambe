@@ -161,6 +161,7 @@ int main(int argc, char **argv)
 
     }
     
+    fclose(infile);
     closeWavOutFile(outfile);
     return 0;
 }
