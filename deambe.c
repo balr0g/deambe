@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     FILE *infile;
     SNDFILE *outfile;
     int stop = 0;
-    
+
     unsigned int majseq, minseq;
     
     char dvtool_header[15];
@@ -78,7 +78,9 @@ int main(int argc, char **argv)
     mbe_parms prev_mp_enhanced;
     int uvquality = 3;
     
-    int ret, i;
+    int ret, i, j, bit_count = 0;
+    int bit_array[72];
+
     const int *w, *x;
     
     if(argc != 3) {
@@ -113,12 +115,23 @@ int main(int argc, char **argv)
 		exit(1);
 	}; // end if
     
-    if (strncmp(dvtool_header,"#C Version 1.0",14) != 0) {    
+    if (strncmp(dvtool_header,"#C Version 1.0",14) != 0) {
         fprintf(stderr,"Error: Not an AMBE file! %s\n",argv[1]);
         fclose(infile);
         exit(1);
     };
     
+    // generate bit array for interleave
+    for (i=0; i<12; i++)
+    {
+        for (j=0; j<6; j++)
+        {
+            bit_array[(j*12)+i] = bit_count^7;
+            bit_count++;
+        }
+    }
+
+
     mbe_initMbeParms(&cur_mp, &prev_mp, &prev_mp_enhanced);
     
     while (stop == 0) {
@@ -132,8 +145,8 @@ int main(int argc, char **argv)
 		
 		if (ret == 9) {
 			// valid frame
-			
-			// deinterleave frame
+
+		    // deinterleave frame
 			for (i = 0; i < 72; i++) {
         			ambe_fr[*w][*x] = (1 & (ambebuffer[i/8] >> (i%8)));
         			w++;
