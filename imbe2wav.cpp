@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cinttypes>
+#include <stdint.h>
 
 #include <sndfile.h>
 #include <imbe_vocoder.h>
