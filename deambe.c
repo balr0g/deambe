@@ -48,9 +48,13 @@ void writeSynthesizedVoice (SNDFILE *wav_out_f, float * audio_out_temp_buf)
       {
         *audio_out_temp_buf_p = (float) -32768;
       }
-      *aout_buf_p = (short) *audio_out_temp_buf_p;
-      aout_buf_p++;
-      audio_out_temp_buf_p++;
+    else if (isnan(*audio_out_temp_buf_p))
+      {
+        *audio_out_temp_buf_p = (float) 0;
+      }
+    *aout_buf_p = (short) *audio_out_temp_buf_p;
+    aout_buf_p++;
+    audio_out_temp_buf_p++;
   }
 
   sf_write_short(wav_out_f, aout_buf, 160);
