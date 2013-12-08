@@ -59,8 +59,8 @@ int main(int argc, char **argv)
     vocoder = new imbe_vocoder();
 
     while (1) {
-        memset(imbe_bitfield, 0, 128);
-        memset(imbe_frame, 0, 8 * sizeof(int16_t));
+        std::memset(imbe_bitfield, 0, 128);
+        std::memset(imbe_frame, 0, 8 * sizeof(int16_t));
         
         // voice frame
         
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
                 imbe_bitfield[i] = 1;
             } else {
                 std::cerr << "Encountered invalid character!" << std::endl;
-                exit(1);
+                std::exit(1);
             }
             imbe_frame[i/16] |= imbe_bitfield[i] << (i%16);
         }

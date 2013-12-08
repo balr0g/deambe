@@ -60,8 +60,8 @@ int main(int argc, char **argv)
     vocoder = new imbe_vocoder();
 
     while (stop == 0) {
-        memset(imbe_bitfield, 0, 128);
-        memset(imbe_frame, 0, 8 * sizeof(int16_t));
+        std::memset(imbe_bitfield, 0, 128);
+        std::memset(imbe_frame, 0, 8 * sizeof(int16_t));
 
         // voice frame
         
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
                 imbe_string += '1';
             } else {
                 std::cerr << "Encountered invalid data!" << std::endl;
-                exit(1);
+                std::exit(1);
             }
         }
         outfile << imbe_string << std::endl;
