@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
+#include <cstdlib>
 #include <stdint.h>
 
 #include <sndfile.h>

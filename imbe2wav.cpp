@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cstring>
+#include <cstdlib>
+
 #include <stdint.h>
 
 #include <sndfile.h>
@@ -39,20 +42,20 @@ int main(int argc, char **argv)
 
     if(argc != 3) {
         std::cerr << "Usage: " << argv[0] << " infile.txt outfile.wav" << std::endl;
-        exit(1);
+        std::exit(1);
     }
 
     // Open input file
     infile.open(argv[1], std::ios::in);
     if((infile.fail())) {
         std::cerr << "Could not open input file " << argv[1] << std::endl;
-        exit(1);
+        std::exit(1);
     }
 
     // open output file
     if((outfile = openWavOutFile(argv[2])) == NULL) {
         std::cerr <<  "Could not open output file " <<argv [2] << std::endl;
-        exit(1);
+        std::exit(1);
     }
     
     // instantiate vocoder
