@@ -30,32 +30,22 @@ void writeSynthesizedVoice (SNDFILE *wav_out_f, float * audio_out_temp_buf)
 {
   int n;
   short aout_buf[160];
-  short *aout_buf_p;
 
 //  for(n=0; n<160; n++)
 //    printf("%d ", ((short*)(state->audio_out_temp_buf))[n]);
 //  printf("\n");
 
-  aout_buf_p = aout_buf;
-  float *audio_out_temp_buf_p = audio_out_temp_buf;
-
   for (n = 0; n < 160; n++)
   {
-    if (*audio_out_temp_buf_p > (float) 32767)
+    if (audio_out_temp_buf[n] > (float) 32767)
       {
-        *audio_out_temp_buf_p = (float) 32767;
+        audio_out_temp_buf[n] = (float) 32767;
       }
-    else if (*audio_out_temp_buf_p < (float) -32768)
+    else if (audio_out_temp_buf[n] < (float) -32768)
       {
-        *audio_out_temp_buf_p = (float) -32768;
+        audio_out_temp_buf[n] = (float) -32768;
       }
-    else if (isnan(*audio_out_temp_buf_p))
-      {
-        *audio_out_temp_buf_p = (float) 0;
-      }
-    *aout_buf_p = (short) *audio_out_temp_buf_p;
-    aout_buf_p++;
-    audio_out_temp_buf_p++;
+      aout_buf[n] = (short) audio_out_temp_buf[n];
   }
 
   sf_write_short(wav_out_f, aout_buf, 160);
@@ -158,7 +148,7 @@ int main(int argc, char **argv)
     		      	x++;
     		    }
             // feed into decoder
-            mbe_processAmbe3600x2250Framef (audio_out_temp_buf, &errs, &errs2, err_str, ambe_fr, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
+            mbe_processAmbe3600x2400Framef (audio_out_temp_buf, &errs, &errs2, err_str, ambe_fr, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
             // convert to binary string array
             for(i=0; i<49; i++) {
                 ambe_d_str[i] = ambe_d[i] + '0';
