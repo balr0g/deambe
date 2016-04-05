@@ -57,10 +57,9 @@ int main(int argc, char **argv)
     SNDFILE *outfile;
     int stop = 0;
 
-    unsigned int majseq, minseq;
+    unsigned int majseq = 0, minseq = 0;
     
-    char dvtool_header[15];
-    char ambe_fr[4][24];
+    //char ambe_fr[4][24];
     float audio_out_temp_buf[160];
     int errs, errs2;
     char err_str[64];
@@ -73,10 +72,7 @@ int main(int argc, char **argv)
     mbe_parms prev_mp_enhanced;
     int uvquality = 3;
     
-    int ret, i, j, bit_count = 0;
-    int bit_array[72];
-
-    const int *w, *x;
+    int ret, i;
     
     if(argc != 3) {
         fprintf(stderr, "Usage: %s infile.ambe outfile.wav\n", argv[0]);
@@ -95,60 +91,35 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // It's a .ambe file. That should
-	// start with a line containing '#C Version 1.0"
-	
+    // It's a bit file. This contains lines of 0s/1s
+
 	// return to beginning of file
 	fseek(infile,0,SEEK_SET);
-	
-	// read next of line, up to \n, maximum 14 characters
-	ret=fread(dvtool_header,1,14,infile);
-	
-	if (ret < 14) {
-		fprintf(stderr,"Error: Could not read header of input file while probing .ambe format! %s\n",argv[1]);
-		fclose(infile);
-		exit(1);
-	}; // end if
-    
-    if (strncmp(dvtool_header,"#C Version 1.0",14) != 0) {
-        fprintf(stderr,"Error: Not an AMBE file! %s\n",argv[1]);
-        fclose(infile);
-        exit(1);
-    };
-    
-    // generate bit array for interleave
-    for (i=0; i<12; i++)
-    {
-        for (j=0; j<6; j++)
-        {
-            bit_array[(j*12)+i] = bit_count^7;
-            bit_count++;
-        }
-    }
+
 
 
     mbe_initMbeParms(&cur_mp, &prev_mp, &prev_mp_enhanced);
     
     while (stop == 0) {
-        unsigned char ambebuffer[9];
-        memset(ambe_fr, 0, 96);
-        // voice frame
-        w = dW;
-        x = dX;
+        unsigned char ambebuffer[50];
+        int c;
+        //memset(ambe_fr, 0, 96);
 
-        ret=readambefile(infile,ambebuffer, &majseq, &minseq);
-		
-		if (ret == 9) {
+        ret=fread(ambebuffer, 1, 49, infile);
+        while(((c=fgetc(infile)) != '\n') && (c != -1)) {
+          ;
+        }
+        printf("R: %d\n", ret);
+		if (ret == 49) {
 			// valid frame
-
-		    // deinterleave frame
-			for (i = 0; i < 72; i++) {
-        			ambe_fr[*w][*x] = (1 & (ambebuffer[i/8] >> (i%8)));
-        			w++;
-    		      	x++;
-    		    }
+      printf("%s\n", ambebuffer);
+      for(i=0; i<49; i++) {
+        ambe_d[i] = ambebuffer[i] - '0';
+      }
+      
             // feed into decoder
-            mbe_processAmbe3600x2450Framef (audio_out_temp_buf, &errs, &errs2, err_str, ambe_fr, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
+            //mbe_processAmbe3600x2450Framef (audio_out_temp_buf, &errs, &errs2, err_str, ambe_fr, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
+            mbe_processAmbe2450Dataf (audio_out_temp_buf, &errs, &errs2, err_str, ambe_d, &cur_mp, &prev_mp, &prev_mp_enhanced, uvquality);
             // convert to binary string array
             for(i=0; i<49; i++) {
                 ambe_d_str[i] = ambe_d[i] + '0';
@@ -162,13 +133,14 @@ int main(int argc, char **argv)
 #endif
             // output into wav file
             writeSynthesizedVoice(outfile, audio_out_temp_buf);
+
 		} else {
 			// no frames left to read in AMBE-file
 			stop=1;
+
 		}; // end else - if
 
     }
-    
     fclose(infile);
     closeWavOutFile(outfile);
     return 0;
